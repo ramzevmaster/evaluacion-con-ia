@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b2545">
+<title>IA con trazabilidad | Ricardo Ramos</title>
+<meta name="description" content="Propuesta de evaluación auténtica con IA generativa trazable, fuentes indexadas y defensa conceptual.">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --azul-900:#061a33;
+  --azul-800:#0b2545;
+  --azul-700:#13315c;
+  --azul-600:#1d4e89;
+  --azul-500:#2a6fdb;
+  --azul-400:#4a8be8;
+  --azul-300:#7fb0f0;
+  --azul-200:#b3d0f5;
+  --azul-100:#dce9fb;
+  --azul-50:#eef4fc;
+  --ink:#0f1b2d;
+  --muted:#5b6b85;
+  --bg:#f5f8fd;
+  --card:#ffffff;
+  --border:#e2ebf7;
+  --shadow:0 10px 30px -14px rgba(13,42,84,.22);
+  --shadow-lg:0 24px 60px -28px rgba(13,42,84,.40);
+  --sidebar-w:280px;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:88px}
+body{
+  margin:0;
+  font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ============ SIDEBAR ============ */
+.sidebar{
+  position:fixed;top:0;left:0;bottom:0;
+  width:var(--sidebar-w);
+  background:
+    radial-gradient(700px 340px at -10% 0%, rgba(42,111,219,.35), transparent 60%),
+    radial-gradient(500px 300px at 110% 100%, rgba(74,139,232,.22), transparent 65%),
+    linear-gradient(180deg,var(--azul-800) 0%, var(--azul-900) 55%, #04101f 100%);
+  color:#c3d7f2;
+  padding:26px 16px 20px;
+  overflow-y:auto;
+  z-index:1045;
+  transition:transform .32s cubic-bezier(.4,0,.2,1);
+  scrollbar-width:thin;
+  scrollbar-color:rgba(127,176,240,.35) transparent;
+}
+.sidebar::-webkit-scrollbar{width:6px}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(127,176,240,.35);border-radius:10px}
+
+.brand{
+  display:flex;align-items:center;gap:.75rem;
+  padding:0 .5rem 20px;
+  border-bottom:1px solid rgba(127,176,240,.18);
+  margin-bottom:18px;
+}
+.brand-mark{
+  width:46px;height:46px;flex:0 0 46px;
+  border-radius:14px;
+  display:grid;place-items:center;
+  font-weight:800;font-size:1rem;letter-spacing:.5px;color:#fff;
+  background:linear-gradient(140deg,var(--azul-400),var(--azul-600));
+  box-shadow:0 10px 24px -10px rgba(42,111,219,.9);
+}
+.brand-text b{display:block;color:#fff;font-size:.95rem;font-weight:700;line-height:1.2}
+.brand-text span{font-size:.74rem;color:#8fb2d8;letter-spacing:.4px}
+
+.nav-label{
+  font-size:.68rem;text-transform:uppercase;letter-spacing:.14em;
+  color:#6f92bb;font-weight:700;
+  padding:14px .8rem 8px;
+}
+.nav-side{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.nav-side a{
+  display:flex;align-items:center;gap:.7rem;
+  padding:.58rem .8rem;
+  border-radius:.65rem;
+  color:#b6cde9;
+  text-decoration:none;
+  font-size:.885rem;font-weight:500;
+  border-left:3px solid transparent;
+  transition:background .18s,color .18s,border-color .18s,transform .18s;
+}
+.nav-side a i{font-size:1rem;opacity:.85}
+.nav-side a:hover{background:rgba(127,176,240,.12);color:#fff;transform:translateX(2px)}
+.nav-side a.active{
+  background:linear-gradient(90deg,rgba(42,111,219,.42),rgba(42,111,219,.04));
+  color:#fff;border-left-color:var(--azul-300);
+  box-shadow:inset 0 0 0 1px rgba(127,176,240,.12);
+}
+.nav-side a.active i{opacity:1;color:var(--azul-300)}
+
+.sidebar-contact{
+  margin-top:22px;padding:14px;
+  border-radius:14px;
+  background:rgba(127,176,240,.08);
+  border:1px solid rgba(127,176,240,.16);
+  font-size:.8rem;
+}
+.sidebar-contact a{color:#cfe2fb;text-decoration:none;display:flex;gap:.55rem;align-items:center;padding:.2rem 0}
+.sidebar-contact a:hover{color:#fff}
+.sidebar-contact i{color:var(--azul-300)}
+
+/* ============ CONTENT ============ */
+.content{margin-left:var(--sidebar-w);min-height:100vh}
+.topbar{
+  position:sticky;top:0;z-index:1030;
+  display:flex;align-items:center;gap:1rem;
+  padding:.7rem 1.5rem;
+  background:rgba(245,248,253,.82);
+  backdrop-filter:saturate(180%) blur(14px);
+  -webkit-backdrop-filter:saturate(180%) blur(14px);
+  border-bottom:1px solid var(--border);
+}
+.topbar h1{font-size:.95rem;font-weight:700;margin:0;color:var(--azul-800);letter-spacing:-.01em}
+.topbar .chip{
+  font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:.3rem .6rem;border-radius:999px;
+  background:var(--azul-100);color:var(--azul-600);
+}
+.btn-burger{
+  border:1px solid var(--border);background:#fff;color:var(--azul-700);
+  width:40px;height:40px;border-radius:11px;display:grid;place-items:center;
+  box-shadow:var(--shadow);
+}
+
+.wrap{padding:26px clamp(16px,4vw,46px) 70px;max-width:1180px}
+
+/* ============ HERO ============ */
+.hero{
+  position:relative;overflow:hidden;
+  border-radius:26px;
+  padding:clamp(24px,4vw,46px);
+  color:#fff;
+  background:
+    radial-gradient(900px 400px at 90% -20%, rgba(127,176,240,.45), transparent 60%),
+    radial-gradient(600px 400px at -10% 120%, rgba(42,111,219,.55), transparent 60%),
+    linear-gradient(135deg,var(--azul-700) 0%,var(--azul-600) 48%,var(--azul-500) 100%);
+  box-shadow:var(--shadow-lg);
+}
+.hero::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.055) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.055) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:radial-gradient(circle at 70% 20%,#000,transparent 75%);
+  -webkit-mask-image:radial-gradient(circle at 70% 20%,#000,transparent 75%);
+}
+.hero-inner{position:relative;z-index:1;display:flex;gap:clamp(18px,3vw,36px);align-items:center;flex-wrap:wrap}
+
+.avatar{
+  position:relative;width:112px;height:112px;flex:0 0 112px;border-radius:26px;
+  display:grid;place-items:center;
+  font-size:2rem;font-weight:800;letter-spacing:1px;color:#fff;
+  background:linear-gradient(150deg,var(--azul-300),var(--azul-600));
+  box-shadow:0 18px 40px -18px rgba(0,0,0,.6);
+  overflow:hidden;border:2px solid rgba(255,255,255,.35);
+}
+.avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+.hero h2{font-size:clamp(1.5rem,3.2vw,2.1rem);font-weight:800;margin:0 0 .25rem;letter-spacing:-.02em}
+.hero .role{font-size:1rem;color:#d5e6ff;font-weight:500;margin-bottom:1rem}
+.hero-contacts{display:flex;flex-wrap:wrap;gap:.5rem}
+.hero-contacts a{
+  display:inline-flex;align-items:center;gap:.45rem;
+  padding:.5rem .9rem;border-radius:999px;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.22);
+  color:#fff;text-decoration:none;font-size:.85rem;font-weight:500;
+  transition:.2s;
+}
+.hero-contacts a:hover{background:rgba(255,255,255,.26);transform:translateY(-2px)}
+
+/* ============ SECTIONS ============ */
+.section{padding:46px 0 6px}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:.45rem;
+  font-size:.7rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--azul-500);margin-bottom:.5rem;
+}
+.eyebrow::before{content:"";width:22px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--azul-500),var(--azul-300))}
+.section h3{
+  font-size:clamp(1.25rem,2.4vw,1.65rem);font-weight:800;letter-spacing:-.02em;
+  color:var(--azul-800);margin:0 0 1.1rem;
+}
+.section p{color:#31415c;line-height:1.75}
+.lead-soft{font-size:1.02rem;color:#3a4c6b}
+
+.card-soft{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:18px;box-shadow:var(--shadow);
+  padding:clamp(18px,2.6vw,26px);
+  transition:transform .25s,box-shadow .25s,border-color .25s;
+}
+.card-soft:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--azul-200)}
+
+.icon-badge{
+  width:44px;height:44px;border-radius:13px;display:grid;place-items:center;
+  background:linear-gradient(140deg,var(--azul-100),#fff);
+  color:var(--azul-600);font-size:1.2rem;margin-bottom:.85rem;
+  border:1px solid var(--azul-100);
+}
+.card-soft h5{font-size:1rem;font-weight:700;color:var(--azul-800);margin-bottom:.4rem}
+.card-soft p{font-size:.9rem;margin:0;color:var(--muted);line-height:1.65}
+
+.media{
+  border-radius:20px;overflow:hidden;position:relative;
+  background:linear-gradient(135deg,var(--azul-700),var(--azul-500));
+  box-shadow:var(--shadow-lg);
+  min-height:220px;
+}
+.media img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ============ TABLES ============ */
+.table-wrap{
+  border-radius:18px;overflow:hidden;border:1px solid var(--border);
+  box-shadow:var(--shadow);background:#fff;
+}
+.table{--bs-table-bg:transparent;margin:0;font-size:.86rem;min-width:820px}
+.table thead th{
+  background:linear-gradient(120deg,var(--azul-700),var(--azul-500));
+  color:#fff;font-weight:700;font-size:.76rem;text-transform:uppercase;
+  letter-spacing:.06em;border:0;padding:.85rem .9rem;vertical-align:middle;
+}
+.table tbody td{padding:.8rem .9rem;vertical-align:top;border-color:var(--border);color:#33445f;line-height:1.6}
+.table tbody tr:nth-child(even){background:var(--azul-50)}
+.table tbody th{background:var(--azul-50);color:var(--azul-800);font-weight:700;border-color:var(--border);padding:.8rem .9rem;vertical-align:top;font-size:.86rem}
+
+/* ============ WEIGHTS ============ */
+.weight-row{margin-bottom:1.05rem}
+.weight-label{display:flex;justify-content:space-between;font-size:.86rem;font-weight:600;color:#33445f;margin-bottom:.35rem}
+.weight-val{color:var(--azul-600);font-weight:800}
+.bar{height:10px;border-radius:999px;background:var(--azul-50);overflow:hidden;border:1px solid var(--border)}
+.bar-fill{
+  height:100%;width:0;border-radius:999px;
+  background:linear-gradient(90deg,var(--azul-600),var(--azul-400),var(--azul-300));
+  transition:width 1.2s cubic-bezier(.2,.8,.2,1);
+}
+
+/* ============ LIST ============ */
+.check-list{list-style:none;margin:0;padding:0}
+.check-list li{
+  display:flex;gap:.7rem;align-items:flex-start;
+  padding:.6rem 0;border-bottom:1px dashed var(--border);font-size:.9rem;color:#33445f;
+}
+.check-list li:last-child{border-bottom:0}
+.check-list i{color:var(--azul-500);margin-top:.15rem}
+
+/* ============ TIMELINE ============ */
+.timeline{position:relative;padding-left:26px}
+.timeline::before{
+  content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;
+  background:linear-gradient(180deg,var(--azul-500),var(--azul-200));
+  border-radius:2px;
+}
+.tl-item{position:relative;padding:0 0 1.35rem 6px}
+.tl-item::before{
+  content:"";position:absolute;left:-26px;top:5px;width:16px;height:16px;border-radius:50%;
+  background:#fff;border:3px solid var(--azul-500);box-shadow:0 0 0 4px rgba(42,111,219,.14);
+}
+.tl-item b{display:block;color:var(--azul-800);font-size:.94rem;margin-bottom:.15rem}
+.tl-item span{font-size:.86rem;color:var(--muted)}
+.tl-item .tl-time{
+  display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.05em;
+  color:var(--azul-600);background:var(--azul-50);border:1px solid var(--azul-100);
+  padding:.15rem .5rem;border-radius:999px;margin-top:.35rem;
+}
+
+/* ============ CODE BLOCK ============ */
+.pre-block{
+  background:linear-gradient(180deg,#0b2545,#061a33);
+  color:#cfe2fb;border-radius:16px;padding:1.1rem 1.2rem;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:.78rem;line-height:1.75;overflow-x:auto;
+  border:1px solid rgba(127,176,240,.2);
+  box-shadow:var(--shadow-lg);
+}
+.pre-block .k{color:#7fb0f0;font-weight:600}
+
+.pill-note{
+  display:flex;gap:.7rem;align-items:flex-start;
+  background:linear-gradient(120deg,var(--azul-50),#fff);
+  border:1px solid var(--azul-100);border-left:4px solid var(--azul-500);
+  border-radius:14px;padding:.9rem 1.05rem;font-size:.88rem;color:#33445f;
+}
+.pill-note i{color:var(--azul-500);font-size:1.05rem;margin-top:.1rem}
+
+/* ============ FOOTER ============ */
+.footer{
+  margin-top:56px;padding:26px clamp(16px,4vw,46px);
+  border-top:1px solid var(--border);
+  color:var(--muted);font-size:.82rem;
+  display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+}
+.footer a{color:var(--azul-600);text-decoration:none;font-weight:600}
+
+/* ============ OVERLAY / BACKTOP ============ */
+.overlay{
+  position:fixed;inset:0;background:rgba(6,26,51,.55);
+  backdrop-filter:blur(2px);opacity:0;pointer-events:none;
+  transition:opacity .3s;z-index:1040;
+}
+.overlay.show{opacity:1;pointer-events:auto}
+
+.backtop{
+  position:fixed;right:20px;bottom:20px;z-index:1035;
+  width:46px;height:46px;border-radius:14px;border:0;
+  background:linear-gradient(140deg,var(--azul-500),var(--azul-700));
+  color:#fff;display:grid;place-items:center;font-size:1.05rem;
+  box-shadow:0 14px 30px -12px rgba(42,111,219,.9);
+  opacity:0;pointer-events:none;transform:translateY(10px);
+  transition:.3s;
+}
+.backtop.show{opacity:1;pointer-events:auto;transform:none}
+
+/* ============ REVEAL ============ */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:991.98px){
+  .sidebar{transform:translateX(-100%);box-shadow:0 0 60px rgba(0,0,0,.4)}
+  .sidebar.open{transform:none}
+  .content{margin-left:0}
+  .wrap{padding-top:18px}
+}
+@media (min-width:992px){
+  .overlay{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none;transition:none}
+  .bar-fill{transition:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= SIDEBAR ================= -->
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="brand-mark">RR</div>
+    <div class="brand-text">
+      <b>Ricardo Ramos</b>
+      <span>Ingeniero de Sistemas</span>
+    </div>
+  </div>
+
+  <div class="nav-label">Contenido</div>
+  <ul class="nav-side">
+    <li><a href="#inicio" class="active"><i class="bi bi-house-door"></i> Inicio</a></li>
+    <li><a href="#introduccion"><i class="bi bi-book"></i> Introducción</a></li>
+    <li><a href="#justificacion"><i class="bi bi-diagram-3"></i> Justificación</a></li>
+    <li><a href="#objetivos"><i class="bi bi-bullseye"></i> Objetivos</a></li>
+    <li><a href="#propuesta"><i class="bi bi-lightbulb"></i> La propuesta</a></li>
+    <li><a href="#evaluacion"><i class="bi bi-sliders"></i> Estructura de evaluación</a></li>
+    <li><a href="#rubrica"><i class="bi bi-table"></i> Rúbrica</a></li>
+    <li><a href="#cotejo"><i class="bi bi-check2-square"></i> Lista de cotejo</a></li>
+    <li><a href="#fases"><i class="bi bi-signpost-split"></i> Implementación</a></li>
+    <li><a href="#resultados"><i class="bi bi-graph-up-arrow"></i> Resultados</a></li>
+    <li><a href="#conclusion"><i class="bi bi-flag"></i> Conclusión</a></li>
+  </ul>
+
+  <div class="sidebar-contact">
+    <a href="tel:+51983981484"><i class="bi bi-telephone"></i> +51 983 981 484</a>
+    <a href="mailto:ramosric1410@gmail.com"><i class="bi bi-envelope"></i> ramosric1410@gmail.com</a>
+  </div>
+</aside>
+
+<div class="overlay" id="overlay"></div>
+
+<!-- ================= CONTENT ================= -->
+<main class="content">
+
+  <div class="topbar">
+    <button class="btn-burger d-lg-none" id="burger" aria-label="Abrir menú">
+      <i class="bi bi-list fs-5"></i>
+    </button>
+    <h1>IA con trazabilidad</h1>
+    <span class="chip ms-auto d-none d-sm-inline">Propuesta educativa</span>
+  </div>
+
+  <div class="wrap">
+
+    <!-- HERO -->
+    <section id="inicio" class="reveal">
+      <div class="hero">
+        <div class="hero-inner">
+          <div class="avatar">
+            <span>RR</span>
+            <img src="assets/img/perfil.jpg" alt="Ricardo Ramos" onerror="this.remove()">
+          </div>
+          <div class="flex-grow-1">
+            <h2>Ricardo Ramos</h2>
+            <div class="role">Ingeniero de Sistemas</div>
+            <div class="hero-contacts">
+              <a href="tel:+51983981484"><i class="bi bi-telephone-fill"></i> +51 983 981 484</a>
+              <a href="mailto:ramosric1410@gmail.com"><i class="bi bi-envelope-fill"></i> ramosric1410@gmail.com</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INTRODUCCIÓN -->
+    <section id="introduccion" class="section">
+      <div class="row g-4 align-items-center">
+        <div class="col-lg-7 reveal">
+          <div class="eyebrow">Punto de partida</div>
+          <h3>Introducción</h3>
+          <p class="lead-soft">
+            La irrupción de la inteligencia artificial generativa ha producido una crisis silenciosa en la
+            evaluación educativa. Los docentes enfrentan una doble dificultad: detectar cuándo un trabajo fue
+            producido por IA y competir contra herramientas que "humanizan" el texto para evadir la detección.
+          </p>
+          <p>
+            Esta propuesta invierte el problema. En lugar de prohibir la IA y perseguir su huella, se exige su uso
+            <strong>obligatorio, transparente y trazable</strong>. El estudiante realiza el trabajo en una IA
+            generativa y comparte el chat completo, donde se evidencian sus preguntas, repreguntas, correcciones y
+            verificación de fuentes. A ello se suman exigencias que la IA no puede sustituir: localizar referencias
+            en revistas indexadas, descargarlas en PDF, ficharlas, sintetizar el proceso en un video, preparar un
+            guión y sostener una defensa oral.
+          </p>
+          <div class="pill-note mt-3">
+            <i class="bi bi-quote"></i>
+            <div>El resultado no es un trabajo más difícil de copiar, sino un trabajo <strong>imposible de falsificar sin aprender</strong>.</div>
+          </div>
+        </div>
+        <div class="col-lg-5 reveal">
+          <div class="media" style="min-height:280px">
+            <img src="assets/img/hero.jpg" alt="IA y educación" onerror="this.remove()">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- JUSTIFICACIÓN -->
+    <section id="justificacion" class="section">
+      <div class="eyebrow reveal">Diagnóstico</div>
+      <h3 class="reveal">Justificación y cambio de paradigma</h3>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-6 col-lg-3 reveal">
+          <div class="card-soft h-100">
+            <div class="icon-badge"><i class="bi bi-incognito"></i></div>
+            <h5>Autoría no verificable</h5>
+            <p>Los trabajos parecen correctos, pero no se puede comprobar quién los escribió.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3 reveal">
+          <div class="card-soft h-100">
+            <div class="icon-badge"><i class="bi bi-shuffle"></i></div>
+            <h5>Evasores de detección</h5>
+            <p>Los estudiantes "humanizan" el texto para burlar los detectores de IA.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3 reveal">
+          <div class="card-soft h-100">
+            <div class="icon-badge"><i class="bi bi-box-seam"></i></div>
+            <h5>Evaluación del producto</h5>
+            <p>Se califica el resultado final y se ignora por completo el proceso.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3 reveal">
+          <div class="card-soft h-100">
+            <div class="icon-badge"><i class="bi bi-journal-x"></i></div>
+            <h5>Fuentes decorativas</h5>
+            <p>Se citan referencias sin haberlas leído, descargado ni comprendido.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap reveal">
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr><th style="width:50%">Modelo tradicional</th><th>Modelo propuesto</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Se prohíbe la IA</td><td>Se exige la IA</td></tr>
+              <tr><td>Se evalúa el producto</td><td>Se evalúa proceso + producto + defensa</td></tr>
+              <tr><td>El chat es privado</td><td>El chat es público y trazable</td></tr>
+              <tr><td>Las fuentes se citan</td><td>Las fuentes se descargan, fichan y usan</td></tr>
+              <tr><td>El alumno entrega y desaparece</td><td>El alumno explica, sintetiza y defiende</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="row g-3 mt-1">
+        <div class="col-md-6 col-lg-3 reveal">
+          <div class="card-soft h-100">
+            <div class="icon-badge"><i class="bi bi-patch-check"></i></div>
+            <h5>Evaluación auténtica</h5>
+            <p>Se evalúa lo que el estudiante puede hacer con apoyo y sin él.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3 reveal">
+          <div class="card-soft h-100">
+            <div class="icon-badge"><i class="bi bi-brain"></i></div>
+            <h5>Metacognición</h5>
+            <p>El chat compartido obliga a pensar sobre cómo se piensa y se pregunta.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3 reveal">
+          <div class="card-soft h-100">
+            <div class="icon-badge"><i class="bi bi-search"></i></div>
+            <h5>Alfabetización informacional</h5>
+            <p>Las fuentes indexadas y las fichas desarrollan criterio de calidad.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3 reveal">
+          <div class="card-soft h-100">
+            <div class="icon-badge"><i class="bi bi-shield-check"></i></div>
+            <h5>Integridad positiva</h5>
+            <p>No se persigue el fraude: se hace innecesario.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- OBJETIVOS -->
+    <section id="objetivos" class="section">
+      <div class="eyebrow reveal">Metas</div>
+      <h3 class="reveal">Objetivos</h3>
+
+      <div class="card-soft mb-3 reveal">
+        <div class="d-flex gap-3 align-items-start">
+          <div class="icon-badge mb-0"><i class="bi bi-crosshair"></i></div>
+          <div>
+            <h5>Objetivo general</h5>
+            <p>Diseñar e implementar un sistema de evaluación que garantice la autoría, el aprendizaje verificable y el uso crítico de la IA generativa en trabajos académicos.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-soft reveal">
+        <h5 class="mb-3">Objetivos específicos</h5>
+        <ul class="check-list">
+          <li><i class="bi bi-check-circle-fill"></i><span>Establecer indicaciones mínimas de interacción con IA generativa.</span></li>
+          <li><i class="bi bi-check-circle-fill"></i><span>Definir un formato obligatorio de ficha de referencia indexada.</span></li>
+          <li><i class="bi bi-check-circle-fill"></i><span>Estructurar un repositorio de evidencias en Classroom.</span></li>
+          <li><i class="bi bi-check-circle-fill"></i><span>Diseñar una rúbrica analítica con criterios de proceso, producto y defensa.</span></li>
+          <li><i class="bi bi-check-circle-fill"></i><span>Incorporar preguntas conceptuales y casuísticas en la evaluación oral.</span></li>
+          <li><i class="bi bi-check-circle-fill"></i><span>Reducir la dependencia de detectores de IA como mecanismo de control.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- PROPUESTA -->
+    <section id="propuesta" class="section">
+      <div class="eyebrow reveal">Desarrollo</div>
+      <h3 class="reveal">La propuesta en detalle</h3>
+
+      <div class="media mb-4 reveal" style="min-height:240px">
+        <img src="assets/img/proceso.jpg" alt="Proceso trazable con IA" onerror="this.remove()">
+      </div>
+
+      <!-- 3.1 -->
+      <div class="card-soft mb-4 reveal">
+        <h5 class="mb-3"><i class="bi bi-1-circle me-2 text-primary"></i>Estructura general del sistema</h5>
+        <p class="mb-3">El estudiante debe entregar <strong>seis evidencias</strong> en un repositorio de Classroom:</p>
+        <div class="row g-3">
+          <div class="col-md-6 col-lg-4"><div class="card-soft h-100"><div class="icon-badge"><i class="bi bi-chat-dots"></i></div><h5>1. Chat completo</h5><p>Enlace del chat compartido de la IA generativa.</p></div></div>
+          <div class="col-md-6 col-lg-4"><div class="card-soft h-100"><div class="icon-badge"><i class="bi bi-camera-video"></i></div><h5>2. Video de 5 min</h5><p>Síntesis del trabajo y del proceso seguido.</p></div></div>
+          <div class="col-md-6 col-lg-4"><div class="card-soft h-100"><div class="icon-badge"><i class="bi bi-file-earmark-pdf"></i></div><h5>3. PDFs indexados</h5><p>Artículos académicos de revistas indexadas.</p></div></div>
+          <div class="col-md-6 col-lg-4"><div class="card-soft h-100"><div class="icon-badge"><i class="bi bi-card-checklist"></i></div><h5>4. Fichas</h5><p>Una ficha de referencia por cada fuente.</p></div></div>
+          <div class="col-md-6 col-lg-4"><div class="card-soft h-100"><div class="icon-badge"><i class="bi bi-file-earmark-text"></i></div><h5>5. Trabajo final</h5><p>Producto solicitado con citas y referencias.</p></div></div>
+          <div class="col-md-6 col-lg-4"><div class="card-soft h-100"><div class="icon-badge"><i class="bi bi-mic"></i></div><h5>6. Guión de 3 min</h5><p>Para exposición presencial o virtual.</p></div></div>
+        </div>
+        <div class="pill-note mt-3">
+          <i class="bi bi-info-circle"></i>
+          <div>A ello se suma una <strong>defensa oral individual</strong> con preguntas conceptuales y casuísticas.</div>
+        </div>
+      </div>
+
+      <!-- 3.2 -->
+      <div class="card-soft mb-4 reveal">
+        <h5 class="mb-3"><i class="bi bi-2-circle me-2 text-primary"></i>Indicaciones de interacción mínima con IA</h5>
+        <p>Son <strong>obligatorias</strong> y forman parte de la evaluación. El chat compartido debe evidenciarlas.</p>
+
+        <h6 class="fw-bold text-primary mt-4 mb-2">A. Apertura del chat</h6>
+        <ul class="check-list">
+          <li><i class="bi bi-dot"></i><span>Nombre y código del estudiante.</span></li>
+          <li><i class="bi bi-dot"></i><span>Tema del trabajo y objetivo de la consulta.</span></li>
+          <li><i class="bi bi-dot"></i><span>Restricción declarada: "Usaré la IA como asistente, no como autora. Verificaré cada dato y citaré fuentes indexadas."</span></li>
+        </ul>
+
+        <h6 class="fw-bold text-primary mt-4 mb-2">B. Interacción mínima obligatoria</h6>
+        <div class="table-wrap">
+          <div class="table-responsive">
+            <table class="table">
+              <thead><tr><th style="width:60px">N.º</th><th>Indicación</th><th>Evidencia en el chat</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Formular al menos <strong>5 preguntas propias</strong> antes de pedir texto</td><td>Prompts iniciales</td></tr>
+                <tr><td>2</td><td><strong>Repreguntar</strong> al menos 3 veces sobre las respuestas</td><td>Hilos de repreguntas</td></tr>
+                <tr><td>3</td><td>Solicitar <strong>fuentes verificables</strong> y comprobarlas</td><td>Prompts de verificación</td></tr>
+                <tr><td>4</td><td><strong>Corregir</strong> al menos un error, sesgo o imprecisión de la IA</td><td>Mensaje de corrección</td></tr>
+                <tr><td>5</td><td><strong>Contrastar</strong> con al menos una fuente indexada</td><td>Comparación explícita</td></tr>
+                <tr><td>6</td><td><strong>Reformular</strong> con palabras propias un párrafo generado</td><td>Versión propia</td></tr>
+                <tr><td>7</td><td><strong>Declarar</strong> qué aceptó, qué rechazó y por qué</td><td>Cierre reflexivo</td></tr>
+                <tr><td>8</td><td><strong>No usar</strong> "humanizadores" ni ocultar el uso de IA</td><td>Ausencia de evasión</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <h6 class="fw-bold text-primary mt-4 mb-2">C. Prohibiciones</h6>
+        <ul class="check-list">
+          <li><i class="bi bi-x-circle-fill text-danger"></i><span>Pegar el trabajo final sin proceso.</span></li>
+          <li><i class="bi bi-x-circle-fill text-danger"></i><span>Usar herramientas para "humanizar" o evadir detección.</span></li>
+          <li><i class="bi bi-x-circle-fill text-danger"></i><span>Citar fuentes que no se hayan descargado y fichado.</span></li>
+          <li><i class="bi bi-x-circle-fill text-danger"></i><span>Compartir un chat vacío, fragmentado o reconstruido después.</span></li>
+        </ul>
+
+        <h6 class="fw-bold text-primary mt-4 mb-2">D. Declaración de uso de IA</h6>
+        <div class="pill-note">
+          <i class="bi bi-pen"></i>
+          <div><em>"Declaro que usé IA generativa en este trabajo. Comparto el chat completo. Las fuentes fueron descargadas, fichadas y verificadas. El análisis, las correcciones y la síntesis son de mi autoría."</em></div>
+        </div>
+      </div>
+
+      <!-- 3.3 FICHA -->
+      <div class="card-soft mb-4 reveal">
+        <h5 class="mb-3"><i class="bi bi-3-circle me-2 text-primary"></i>Formato obligatorio de ficha de referencia indexada</h5>
+        <p>Cada fuente debe descargarse en PDF y acompañarse de una ficha. <strong>Requisito mínimo: 3 fichas</strong> de fuentes indexadas; se recomienda 5 para el nivel excelente.</p>
+        <pre class="pre-block"><span class="k">FICHA DE REFERENCIA ACADÉMICA</span>
+
+1. Datos bibliográficos (APA 7)
+   Autor(es):
+   Año:
+   Título:
+   Revista:
+   Volumen/Número:
+   Páginas:
+   DOI o URL:
+   Indexación (Scopus, WoS, SciELO, Redalyc, Latindex, etc.):
+
+2. Tipo de estudio
+   (Empírico / Revisión / Teórico / Estudio de caso / Otro)
+
+3. Pregunta o problema que aborda
+
+4. Metodología
+   (Diseño, muestra, instrumentos, periodo)
+
+5. Hallazgos principales (máximo 5 ideas)
+
+6. Cita textual relevante
+   "..." (p. X)
+
+7. Paráfrasis propia
+   (Explicación con palabras del estudiante)
+
+8. Utilidad para mi trabajo
+   (¿Para qué argumento me sirve?)
+
+9. Limitaciones o vacíos
+   (Qué no resuelve la fuente)
+
+10. Verificación
+   ¿Descargué el PDF?          Sí / No
+   ¿Leí el artículo completo?  Sí / No
+   ¿Verifiqué el DOI?          Sí / No</pre>
+      </div>
+
+      <!-- 3.4 REPOSITORIO -->
+      <div class="card-soft mb-4 reveal">
+        <h5 class="mb-3"><i class="bi bi-4-circle me-2 text-primary"></i>Estructura del repositorio en Classroom</h5>
+        <pre class="pre-block">Apellido_Nombre_Trabajo/
+├── <span class="k">01_Chat_IA/</span>
+│   └── enlace_chat_compartido.pdf  (o .txt con URL y capturas)
+├── <span class="k">02_Video/</span>
+│   └── video_sintesis_5min.mp4  (o enlace)
+├── <span class="k">03_Fuentes_PDF/</span>
+│   ├── Autor1_Año.pdf
+│   ├── Autor2_Año.pdf
+│   └── Autor3_Año.pdf
+├── <span class="k">04_Fichas/</span>
+│   ├── ficha_Autor1.pdf
+│   ├── ficha_Autor2.pdf
+│   └── ficha_Autor3.pdf
+├── <span class="k">05_Trabajo_Final/</span>
+│   └── trabajo_final.pdf
+├── <span class="k">06_Guion_Exposicion/</span>
+│   └── guion_3min.pdf
+└── <span class="k">07_Declaracion_IA/</span>
+    └── declaracion_firmada.pdf</pre>
+        <div class="pill-note mt-3">
+          <i class="bi bi-exclamation-triangle"></i>
+          <div><strong>Regla:</strong> si falta una carpeta o evidencia, se aplica la penalidad del criterio correspondiente y el trabajo no puede aspirar a nota máxima.</div>
+        </div>
+      </div>
+
+      <!-- 3.5 VIDEO y 3.6 GUIÓN -->
+      <div class="row g-4 mb-4">
+        <div class="col-lg-6 reveal">
+          <div class="card-soft h-100">
+            <h5 class="mb-3"><i class="bi bi-5-circle me-2 text-primary"></i>Video de síntesis (5 min)</h5>
+            <div class="table-wrap">
+              <div class="table-responsive">
+                <table class="table" style="min-width:auto">
+                  <thead><tr><th style="width:120px">Tiempo</th><th>Contenido</th></tr></thead>
+                  <tbody>
+                    <tr><td>0:00 – 0:30</td><td>Presentación y tema</td></tr>
+                    <tr><td>0:30 – 1:30</td><td>Proceso con la IA (qué pregunté, qué corregí)</td></tr>
+                    <tr><td>1:30 – 2:30</td><td>Fuentes indexadas y hallazgos principales</td></tr>
+                    <tr><td>2:30 – 3:30</td><td>Análisis propio y relación con el trabajo</td></tr>
+                    <tr><td>3:30 – 4:30</td><td>Limitaciones, decisiones y aprendizajes</td></tr>
+                    <tr><td>4:30 – 5:00</td><td>Cierre y conclusiones</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <p class="mt-3 mb-0" style="font-size:.85rem"><strong>Requisito:</strong> el video no puede ser leído; debe ser una explicación con voz propia.</p>
+          </div>
+        </div>
+        <div class="col-lg-6 reveal">
+          <div class="card-soft h-100">
+            <h5 class="mb-3"><i class="bi bi-6-circle me-2 text-primary"></i>Guión de exposición (3 min)</h5>
+            <ul class="check-list">
+              <li><i class="bi bi-clock"></i><span><strong>Tema y objetivo</strong> — 20 s</span></li>
+              <li><i class="bi bi-clock"></i><span><strong>Proceso con IA y correcciones</strong> — 40 s</span></li>
+              <li><i class="bi bi-clock"></i><span><strong>Fuentes y hallazgos</strong> — 40 s</span></li>
+              <li><i class="bi bi-clock"></i><span><strong>Análisis propio</strong> — 40 s</span></li>
+              <li><i class="bi bi-clock"></i><span><strong>Conclusión y limitaciones</strong> — 40 s</span></li>
+            </ul>
+            <p class="mt-3 mb-0" style="font-size:.85rem"><strong>Formato:</strong> máximo 1 página, con marcas de tiempo.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3.7 DEFENSA -->
+      <div class="card-soft mb-4 reveal">
+        <h5 class="mb-3"><i class="bi bi-7-circle me-2 text-primary"></i>Defensa oral: preguntas conceptuales y casuísticas</h5>
+        <p>La defensa es <strong>individual</strong> y se realiza en clase presencial o virtual.</p>
+        <div class="row g-4">
+          <div class="col-lg-6">
+            <h6 class="fw-bold text-primary mb-2"><i class="bi bi-lightbulb me-1"></i> Conceptuales</h6>
+            <ul class="check-list">
+              <li><i class="bi bi-question-circle"></i><span>¿Qué diferencia hay entre usar la IA como asistente y como autora?</span></li>
+              <li><i class="bi bi-question-circle"></i><span>¿Cómo verificaste que una fuente era indexada?</span></li>
+              <li><i class="bi bi-question-circle"></i><span>¿Qué es una revista indexada y por qué importa?</span></li>
+              <li><i class="bi bi-question-circle"></i><span>¿Qué corregiste a la IA y por qué?</span></li>
+              <li><i class="bi bi-question-circle"></i><span>¿Qué criterio usaste para aceptar o rechazar una respuesta?</span></li>
+            </ul>
+          </div>
+          <div class="col-lg-6">
+            <h6 class="fw-bold text-primary mb-2"><i class="bi bi-diagram-2 me-1"></i> Casuísticas</h6>
+            <ul class="check-list">
+              <li><i class="bi bi-question-circle"></i><span>Si la IA te da una cita que no encuentras, ¿qué haces?</span></li>
+              <li><i class="bi bi-question-circle"></i><span>Si un artículo no tiene DOI, ¿cómo verificas su calidad?</span></li>
+              <li><i class="bi bi-question-circle"></i><span>Si la IA contradice una fuente indexada, ¿a quién crees y por qué?</span></li>
+              <li><i class="bi bi-question-circle"></i><span>Si tu compañero no comparte el chat, ¿qué evidencia falta?</span></li>
+              <li><i class="bi bi-question-circle"></i><span>Si la IA "humaniza" tu texto, ¿qué problema ético y evaluativo genera?</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EVALUACIÓN -->
+    <section id="evaluacion" class="section">
+      <div class="eyebrow reveal">Ponderación</div>
+      <h3 class="reveal">Estructura de evaluación</h3>
+
+      <div class="card-soft reveal">
+        <div class="weight-row">
+          <div class="weight-label"><span>Trazabilidad y calidad de interacción con IA</span><span class="weight-val">20%</span></div>
+          <div class="bar"><div class="bar-fill" data-w="20"></div></div>
+        </div>
+        <div class="weight-row">
+          <div class="weight-label"><span>Fuentes académicas indexadas y fichas</span><span class="weight-val">20%</span></div>
+          <div class="bar"><div class="bar-fill" data-w="20"></div></div>
+        </div>
+        <div class="weight-row">
+          <div class="weight-label"><span>Producto final</span><span class="weight-val">25%</span></div>
+          <div class="bar"><div class="bar-fill" data-w="25"></div></div>
+        </div>
+        <div class="weight-row">
+          <div class="weight-label"><span>Video de síntesis</span><span class="weight-val">10%</span></div>
+          <div class="bar"><div class="bar-fill" data-w="10"></div></div>
+        </div>
+        <div class="weight-row">
+          <div class="weight-label"><span>Guión y exposición de 3 minutos</span><span class="weight-val">10%</span></div>
+          <div class="bar"><div class="bar-fill" data-w="10"></div></div>
+        </div>
+        <div class="weight-row mb-0">
+          <div class="weight-label"><span>Defensa conceptual / casuística</span><span class="weight-val">15%</span></div>
+          <div class="bar"><div class="bar-fill" data-w="15"></div></div>
+        </div>
+      </div>
+
+      <div class="row g-3 mt-1">
+        <div class="col-md-6 reveal">
+          <div class="card-soft h-100">
+            <div class="icon-badge"><i class="bi bi-calendar-check"></i></div>
+            <h5>Momentos de evaluación</h5>
+            <ul class="check-list mt-2">
+              <li><i class="bi bi-1-circle"></i><span><strong>Antes:</strong> declaración de uso de IA y plan de trabajo.</span></li>
+              <li><i class="bi bi-2-circle"></i><span><strong>Durante:</strong> revisión del chat, avance de fichas y PDFs.</span></li>
+              <li><i class="bi bi-3-circle"></i><span><strong>Después:</strong> trabajo, video y guión.</span></li>
+              <li><i class="bi bi-4-circle"></i><span><strong>Cierre:</strong> exposición breve y defensa.</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-6 reveal">
+          <div class="card-soft h-100">
+            <div class="icon-badge"><i class="bi bi-calculator"></i></div>
+            <h5>Fórmula de calificación</h5>
+            <p class="mt-2">Escala: 4 = Excelente · 3 = Bueno · 2 = En proceso · 1 = Insuficiente.</p>
+            <div class="pre-block mt-2" style="font-size:.85rem">
+Nota final = Σ [ peso × (nivel / 4) ]
+            </div>
+            <p class="mt-2 mb-0">Expresada sobre 20 o sobre 100, según la escala institucional.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RÚBRICA -->
+    <section id="rubrica" class="section">
+      <div class="eyebrow reveal">Instrumento</div>
+      <h3 class="reveal">Rúbrica analítica</h3>
+
+      <div class="table-wrap reveal">
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th style="min-width:170px">Criterio y peso</th>
+                <th>Excelente (4)</th>
+                <th>Bueno (3)</th>
+                <th>En proceso (2)</th>
+                <th>Insuficiente (1)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>1. Trazabilidad y calidad de interacción con IA — 20%</th>
+                <td>Chat completo y ordenado; prompts claros; repreguntas; verifica datos; corrige errores o sesgos; se observa aprendizaje y juicio propio.</td>
+                <td>Chat completo; interacción suficiente; algunas repreguntas y verificaciones; cierta dependencia de la IA.</td>
+                <td>Chat incompleto o superficial; pocas repreguntas; escasa verificación; se acepta la IA sin cuestionar.</td>
+                <td>No comparte chat o lo comparte incompleto; evidencia copia directa; no hay proceso verificable.</td>
+              </tr>
+              <tr>
+                <th>2. Fuentes indexadas y fichas — 20%</th>
+                <td>Mínimo 5 fuentes pertinentes; PDFs completos; DOI/URL; fichas completas con síntesis crítica, cita textual y utilidad argumentativa.</td>
+                <td>4 fuentes pertinentes; PDFs y fichas completas; alguna debilidad en la síntesis crítica.</td>
+                <td>3 fuentes o fichas incompletas; poca pertinencia; escasa relación con el trabajo.</td>
+                <td>Menos de 3 fuentes, no indexadas, sin PDF o sin fichas; uso decorativo de referencias.</td>
+              </tr>
+              <tr>
+                <th>3. Producto final — 25%</th>
+                <td>Responde con precisión a la consigna; argumentación propia; integra fuentes; citas correctas; claridad, rigor y coherencia.</td>
+                <td>Cumple la consigna; argumentación adecuada; integra algunas fuentes; citas generalmente correctas.</td>
+                <td>Cumple parcialmente; poca integración de fuentes; argumentación débil o descriptiva.</td>
+                <td>No responde a la consigna; copia o paráfrasis superficial; sin citas; incoherencias graves.</td>
+              </tr>
+              <tr>
+                <th>4. Video de síntesis de 5 minutos — 10%</th>
+                <td>Explica proceso, decisiones, hallazgos, uso de IA y limitaciones con voz propia; sintetiza con claridad.</td>
+                <td>Cubre los elementos principales; síntesis adecuada; alguna omisión menor.</td>
+                <td>Video descriptivo o incompleto; no explica bien el proceso o el uso de IA.</td>
+                <td>No entrega video, lo lee mecánicamente o no corresponde al trabajo.</td>
+              </tr>
+              <tr>
+                <th>5. Guión y exposición de 3 minutos — 10%</th>
+                <td>Guión claro y estructurado; exposición precisa; pertinente; buen manejo del tiempo; responde con seguridad.</td>
+                <td>Guión y exposición adecuados; cumple en lo esencial; manejo aceptable del tiempo.</td>
+                <td>Guión desorganizado o exposición parcial; dificultad para explicar el proceso.</td>
+                <td>No prepara guión o exposición; no puede sostener lo presentado.</td>
+              </tr>
+              <tr>
+                <th>6. Defensa conceptual / casuística — 15%</th>
+                <td>Responde con precisión conceptos y casos; aplica lo aprendido; justifica decisiones; reconoce límites y contradicciones.</td>
+                <td>Responde bien la mayoría de preguntas; aplica conceptos con apoyo; justificación suficiente.</td>
+                <td>Respuestas parciales o memorísticas; dificultad para aplicar a casos nuevos.</td>
+                <td>No responde, contradice su trabajo o demuestra que no comprende lo entregado.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- COTEJO -->
+    <section id="cotejo" class="section">
+      <div class="eyebrow reveal">Verificación rápida</div>
+      <h3 class="reveal">Lista de cotejo para el docente</h3>
+
+      <div class="table-wrap reveal">
+        <div class="table-responsive">
+          <table class="table" style="min-width:auto">
+            <thead><tr><th>Verificación</th><th style="width:90px" class="text-center">Sí</th><th style="width:90px" class="text-center">No</th></tr></thead>
+            <tbody>
+              <tr><td>¿Compartió el chat completo y accesible?</td><td class="text-center"><i class="bi bi-square text-secondary"></i></td><td class="text-center"><i class="bi bi-square text-secondary"></i></td></tr>
+              <tr><td>¿El chat muestra repreguntas, verificación y corrección?</td><td class="text-center"><i class="bi bi-square text-secondary"></i></td><td class="text-center"><i class="bi bi-square text-secondary"></i></td></tr>
+              <tr><td>¿Entrega al menos 3 PDFs de revistas indexadas?</td><td class="text-center"><i class="bi bi-square text-secondary"></i></td><td class="text-center"><i class="bi bi-square text-secondary"></i></td></tr>
+              <tr><td>¿Las fichas están completas y relacionadas con el trabajo?</td><td class="text-center"><i class="bi bi-square text-secondary"></i></td><td class="text-center"><i class="bi bi-square text-secondary"></i></td></tr>
+              <tr><td>¿El trabajo final cita y usa las fuentes?</td><td class="text-center"><i class="bi bi-square text-secondary"></i></td><td class="text-center"><i class="bi bi-square text-secondary"></i></td></tr>
+              <tr><td>¿El video dura 5 minutos y sintetiza el proceso?</td><td class="text-center"><i class="bi bi-square text-secondary"></i></td><td class="text-center"><i class="bi bi-square text-secondary"></i></td></tr>
+              <tr><td>¿El guión de 3 minutos es claro y pertinente?</td><td class="text-center"><i class="bi bi-square text-secondary"></i></td><td class="text-center"><i class="bi bi-square text-secondary"></i></td></tr>
+              <tr><td>¿Responde preguntas conceptuales y casuísticas?</td><td class="text-center"><i class="bi bi-square text-secondary"></i></td><td class="text-center"><i class="bi bi-square text-secondary"></i></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="pill-note mt-3 reveal">
+        <i class="bi bi-shield-exclamation"></i>
+        <div><strong>Regla:</strong> si falla el chat completo o faltan PDFs/fichas, el trabajo no es elegible para nota máxima.</div>
+      </div>
+    </section>
+
+    <!-- FASES -->
+    <section id="fases" class="section">
+      <div class="eyebrow reveal">Ruta</div>
+      <h3 class="reveal">Fases de implementación</h3>
+
+      <div class="card-soft reveal">
+        <div class="timeline">
+          <div class="tl-item">
+            <b>1. Sensibilización</b>
+            <span>Explicar la propuesta a estudiantes y docentes.</span>
+            <div class="tl-time">1 sesión</div>
+          </div>
+          <div class="tl-item">
+            <b>2. Modelado</b>
+            <span>El docente muestra un chat ejemplar, una ficha y un video.</span>
+            <div class="tl-time">1 sesión</div>
+          </div>
+          <div class="tl-item">
+            <b>3. Piloto</b>
+            <span>Aplicar en un trabajo pequeño.</span>
+            <div class="tl-time">2 semanas</div>
+          </div>
+          <div class="tl-item">
+            <b>4. Ajuste</b>
+            <span>Revisar rúbrica y formatos según resultados.</span>
+            <div class="tl-time">1 semana</div>
+          </div>
+          <div class="tl-item">
+            <b>5. Implementación</b>
+            <span>Aplicar en evaluaciones del curso.</span>
+            <div class="tl-time">Todo el ciclo</div>
+          </div>
+          <div class="tl-item">
+            <b>6. Evaluación</b>
+            <span>Analizar evidencias y aprendizajes.</span>
+            <div class="tl-time">Fin de ciclo</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTADOS -->
+    <section id="resultados" class="section">
+      <div class="eyebrow reveal">Impacto</div>
+      <h3 class="reveal">Resultados esperados</h3>
+
+      <div class="row g-3">
+        <div class="col-md-6 col-lg-4 reveal"><div class="card-soft h-100"><div class="icon-badge"><i class="bi bi-shield-check"></i></div><h5>Menos dependencia de detectores</h5><p>La verificación se basa en evidencias, no en algoritmos inciertos.</p></div></div>
+        <div class="col-md-6 col-lg-4 reveal"><div class="card-soft h-100"><div class="icon-badge"><i class="bi bi-eye"></i></div><h5>Mayor transparencia</h5><p>El uso de tecnología queda documentado y es auditable.</p></div></div>
+        <div class="col-md-6 col-lg-4 reveal"><div class="card-soft h-100"><div class="icon-badge"><i class="bi bi-search-heart"></i></div><h5>Estudiantes que verifican</h5><p>Saben preguntar, contrastar y corregir a la IA.</p></div></div>
+        <div class="col-md-6 col-lg-4 reveal"><div class="card-soft h-100"><div class="icon-badge"><i class="bi bi-journal-check"></i></div><h5>Fuentes realmente leídas</h5><p>Descargadas, fichadas y usadas con criterio.</p></div></div>
+        <div class="col-md-6 col-lg-4 reveal"><div class="card-soft h-100"><div class="icon-badge"><i class="bi bi-person-check"></i></div><h5>Docentes con evidencia</h5><p>Prueba verificable del proceso de aprendizaje.</p></div></div>
+        <div class="col-md-6 col-lg-4 reveal"><div class="card-soft h-100"><div class="icon-badge"><i class="bi bi-award"></i></div><h5>Cultura de integridad</h5><p>Integridad académica positiva, no punitiva.</p></div></div>
+      </div>
+    </section>
+
+    <!-- CONCLUSIÓN -->
+    <section id="conclusion" class="section">
+      <div class="eyebrow reveal">Cierre</div>
+      <h3 class="reveal">Conclusión</h3>
+
+      <div class="card-soft reveal" style="background:linear-gradient(135deg,#fff,var(--azul-50));border-color:var(--azul-100)">
+        <p class="lead-soft mb-3">
+          La propuesta transforma la IA de amenaza en instrumento pedagógico trazable. Al exigir el chat completo,
+          las fuentes indexadas, las fichas, el video, el guión y la defensa oral, el estudiante no puede entregar
+          un trabajo sin aprender.
+        </p>
+        <p class="mb-0 fw-semibold" style="color:var(--azul-700)">
+          La evaluación deja de perseguir la huella de la IA y empieza a verificar la huella del pensamiento.
+        </p>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="footer">
+    <div>© <span id="year"></span> Ricardo Ramos · Ingeniero de Sistemas</div>
+    <div><a href="mailto:ramosric1410@gmail.com">ramosric1410@gmail.com</a> · <a href="tel:+51983981484">+51 983 981 484</a></div>
+  </footer>
+</main>
+
+<button class="backtop" id="backtop" aria-label="Volver arriba"><i class="bi bi-arrow-up"></i></button>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function () {
+  const sidebar  = document.getElementById('sidebar');
+  const overlay  = document.getElementById('overlay');
+  const burger   = document.getElementById('burger');
+  const backtop  = document.getElementById('backtop');
+  const links    = [...document.querySelectorAll('.nav-side a')];
+  const sections = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+
+  /* --- Menú móvil --- */
+  function openMenu(){ sidebar.classList.add('open'); overlay.classList.add('show'); document.body.style.overflow='hidden'; }
+  function closeMenu(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); document.body.style.overflow=''; }
+
+  burger.addEventListener('click', openMenu);
+  overlay.addEventListener('click', closeMenu);
+  links.forEach(a => a.addEventListener('click', () => {
+    if (window.innerWidth < 992) closeMenu();
+  }));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+  window.addEventListener('resize', () => { if (window.innerWidth >= 992) closeMenu(); });
+
+  /* --- Enlace activo según scroll --- */
+  const navObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const active = links.find(l => l.getAttribute('href') === '#' + entry.target.id);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+
+  sections.forEach(s => navObserver.observe(s));
+
+  /* --- Reveal + barras --- */
+  const revealObserver = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('in');
+
+      entry.target.querySelectorAll('.bar-fill').forEach(bar => {
+        bar.style.width = bar.dataset.w + '%';
+      });
+
+      obs.unobserve(entry.target);
+    });
+  }, { threshold: 0.14 });
+
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+  /* --- Botón volver arriba --- */
+  window.addEventListener('scroll', () => {
+    backtop.classList.toggle('show', window.scrollY > 420);
+  }, { passive: true });
+  backtop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  /* --- Año --- */
+  document.getElementById('year').textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
